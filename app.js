@@ -142,7 +142,7 @@ function showCustomAlert(message, type) {
             justify-content: center;
             align-items: center;
             padding: 10px 20px;
-            max-width: 80%;
+            max-width: 100%;
             text-align: center;
             white-space: pre-line; /* Esto permite interpretar \n como un salto de línea */
         }
