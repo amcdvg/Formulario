@@ -107,6 +107,22 @@
             margin-bottom: 20px;
             
           }
+        /* Estilo para los inputs con error */
+        input.input-error {
+            border: 2px solid #f44336; /* Borde rojo */
+            background-color: #ffebee; /* Fondo rosado claro */
+            color: #f44336; /* Texto del mismo color que el borde */
+            border-radius: 4px; /* Bordes ligeramente redondeados */
+            padding: 8px; /* Espaciado interno */
+            outline: none; /* Remover el borde por defecto del navegador */
+           
+        }
+
+        input.input-error:focus {
+            border-color: #d32f2f; /* Cambiar color del borde al enfocar */
+            box-shadow: 0 0 5px rgba(244, 67, 54, 0.5); /* Añadir un ligero brillo */
+        }
+        
     </style>
 </head>
 <body>

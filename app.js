@@ -59,7 +59,7 @@ function sendDataToServer(data, form) {
  * @returns {string} - URL correspondiente al horario.
  */
 function getScriptURL(horario) {
-    const urlBase = 'https://script.google.com/macros/s/AKfycbx6Or4h4YF1EGGg09PXLOjX1LNCclHwK_XB8Z_JkFVV4Jl_C6fYSsz3pq9Szv3LXpo/exec';
+    const urlBase = 'https://script.google.com/macros/s/AKfycbwlGLGVcrrSlPtWDApcsHEnAhc1y1C4L_Ayp8opzUDI1CE6QgC6286hycbRY5A3_3T1/exec';//'https://script.google.com/macros/s/AKfycbx6Or4h4YF1EGGg09PXLOjX1LNCclHwK_XB8Z_JkFVV4Jl_C6fYSsz3pq9Szv3LXpo/exec';
 
     switch (horario) {
         case "7:00 am":
@@ -144,6 +144,7 @@ function showCustomAlert(message, type) {
             padding: 10px 20px;
             max-width: 80%;
             text-align: center;
+            white-space: pre-line; /* Esto permite interpretar \n como un salto de línea */
         }
         .custom-alert.success {
             border: 2px solid #4CAF50;
@@ -169,4 +170,49 @@ function showCustomAlert(message, type) {
         alertBox.style.opacity = '0';
         setTimeout(() => document.body.removeChild(alertBox), 500);
     }, 3000); // El alert desaparece después de 3 segundos
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+document.querySelector('#cedula').addEventListener('blur', function () {
+    const cedula = this.value.trim();
+
+    if (!cedula) {
+        //showCustomAlert('Por favor ingresa una cédula.', 'error');
+        return;
+    }
+
+    // Llama al servidor para validar la cédula
+    checkCedulaInServer(cedula)
+        .then(exists => {
+            if (exists) {
+                showCustomAlert('La cédula del líder ya está registrado.\n Por favor, verifica tus datos.', 'error');
+                this.classList.add('input-error');
+            } else {
+                this.classList.remove('input-error');
+            }
+        })
+        .catch(() => {
+            showCustomAlert('Error al verificar la cédula. Inténtalo de nuevo.', 'error');
+        });
+});
+
+/**
+ * Función para consultar al servidor si la cédula ya existe.
+ * @param {string} cedula - Número de cédula a validar.
+ * @returns {Promise<boolean>} - True si la cédula existe, false si no.
+ */
+function checkCedulaInServer(cedula) {
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwlGLGVcrrSlPtWDApcsHEnAhc1y1C4L_Ayp8opzUDI1CE6QgC6286hycbRY5A3_3T1/exec'; // Reemplaza con tu URL de App Script
+
+    return fetch(`${scriptURL}?cedula=${encodeURIComponent(cedula)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.result === 'success') {
+                return data.exists;
+            } else {
+                throw new Error(data.message);
+            }
+        });
 }
