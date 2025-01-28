@@ -1,5 +1,5 @@
 // Selección del formulario y configuración del evento 'submit'
-document.querySelector('.form-container form').addEventListener('submit', function (event) {
+/*document.querySelector('.form-container form').addEventListener('submit', function (event) {
     event.preventDefault(); // Evita el comportamiento predeterminado del formulario
 
     const form = event.target;
@@ -23,6 +23,48 @@ document.querySelector('.form-container form').addEventListener('submit', functi
 
     // Envío de datos al servidor
     sendDataToServer(data, form);
+});*/
+document.querySelector('.form-container form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Evita el comportamiento predeterminado del formulario
+
+    const form = event.target;
+    const formData = new FormData(form); // Captura datos del formulario, incluidos archivos
+    const cedula = formData.get('Cédula').trim(); // Obtener la cédula ingresada
+
+    // Validación de campos obligatorios
+    if (!formData.get('Nombre') || !cedula || !formData.get('Teléfono') ||
+        !formData.get('Barrio') || !formData.get('Fecha de nacimiento')) {
+        alert('Por favor, completa todos los campos requeridos.');
+        return;
+    }
+    showLoadingSpinner();
+    // Verifica si la cédula ya existe
+    checkCedulaInServer(cedula)
+        .then(exists => {
+            
+            if (exists) {
+                // Si la cédula ya está registrada, muestra el mensaje de error y no envíes el formulario
+                
+                showCustomAlert('formulario no enviado.\n Por favor, verifica los datos. \n Cédula.', 'error');
+                hideLoadingSpinner()
+            } else {
+                // Si la cédula no existe, muestra la rueda de carga y envía el formulario
+                showLoadingSpinner();
+
+                // Conversión de datos del formulario a un objeto
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                // Envío de datos al servidor
+                sendDataToServer(data, form);
+                hideLoadingSpinner()
+            }
+        })
+        .catch(() => {
+            showCustomAlert('Error al verificar la cédula. Inténtalo de nuevo.', 'error');
+        });
 });
 
 /**
@@ -184,6 +226,7 @@ document.querySelector('#cedula').addEventListener('blur', function () {
     }
 
     // Llama al servidor para validar la cédula
+    
     checkCedulaInServer(cedula)
         .then(exists => {
             if (exists) {
@@ -205,7 +248,7 @@ document.querySelector('#cedula').addEventListener('blur', function () {
  */
 function checkCedulaInServer(cedula) {
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwlGLGVcrrSlPtWDApcsHEnAhc1y1C4L_Ayp8opzUDI1CE6QgC6286hycbRY5A3_3T1/exec'; // Reemplaza con tu URL de App Script
-
+    
     return fetch(`${scriptURL}?cedula=${encodeURIComponent(cedula)}`)
         .then(response => response.json())
         .then(data => {
